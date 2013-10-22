@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "HTTP_Tunnel.h"
 
-@interface xcvbViewController : UIViewController
-
+@interface xcvbViewController : UIViewController<UIWebViewDelegate>
+@property (weak, nonatomic) IBOutlet UIWebView *webView;
 @end
+
+gxThread_t *myTunnel_t;
+HTTP_Tunnel myTunnel;

@@ -124,7 +124,7 @@ char *gxsHTTPClient::GetMethod(int method)
 int gxsHTTPClient::ConnectClient(const char *host, int port)
 {
   if(InitSocketLibrary() == 0) {
-    if(InitSocket(SOCK_STREAM, port, (char *)host) < 0) return socket_error;
+    if( InitSocket( SOCK_STREAM, port, (char *)host ) < 0 ) return socket_error;
   }
   else {
     return socket_error;
@@ -486,41 +486,47 @@ int gxsHTTPClient::Request(const gxsURLInfo &u, gxsHTTPHeader &hdr,
     // Exit if the server closed the connection
     if(nRet == 0) break;
 
-    if(!found_header) {
+    if(!found_header)
+    {
       header.Cat(rxBuffer, nRet);
-      if((header.Find("\r\n\r\n") != -1) || (header.Find("\n\n") != -1)) {
-	found_header = 1; // Found the end of header marker
+      if((header.Find("\r\n\r\n") != -1) || (header.Find("\n\n") != -1))
+      {
+	    found_header = 1; // Found the end of header marker
 
-	// Remove everything after the end of header marker
-	if(!header.DeleteAfter("\r\n\r\n")) {
-	  header.DeleteAfter("\n\n");
-	}
+	    // Remove everything after the end of header marker
+	    if(!header.DeleteAfter("\r\n\r\n"))
+        {
+	        header.DeleteAfter("\n\n");
+	    }
 
-	// Parse the HTTP header
-	ParseHTTPHeader(u, header, hdr); 
-	if((hdr.http_status < 200) || (hdr.http_status > 299)) {
-	  // There is a problem with the document so do not attempt a download
-	  return socket_error = gxSOCKET_HTTPDOC_ERROR; 
-	}
+	    // Parse the HTTP header
+	    ParseHTTPHeader(u, header, hdr);
+	    if((hdr.http_status < 200) || (hdr.http_status > 299))
+        {
+	        // There is a problem with the document so do not attempt a download
+	        return socket_error = gxSOCKET_HTTPDOC_ERROR;
+	    }
 
-	// Move the document body over the header information
-	unsigned CRLF_len = strlen("\r\n\r\n");
-	int offset = FindMatch((const char *)rxBuffer, "\r\n\r\n", 
+	    // Move the document body over the header information
+	    unsigned CRLF_len = strlen("\r\n\r\n");
+	    int offset = FindMatch((const char *)rxBuffer, "\r\n\r\n",
 			       (unsigned)0, (unsigned)nRet);
-	if(offset == -1) {
-	  offset = FindMatch((const char *)rxBuffer, "\n\n", 
+	    if(offset == -1)
+        {
+	        offset = FindMatch((const char *)rxBuffer, "\n\n",
 			     (unsigned)0, (unsigned)nRet);
-	  CRLF_len = strlen("\n\n");
-	}
-	offset += CRLF_len;
-	byte_count = nRet - offset;
-	bytes_received += byte_count;
-	char *s_ptr = (char *)rxBuffer;
-	memmove(s_ptr, s_ptr+offset, byte_count); 
-      }
-      else { // Part of the header was received
-	continue; // Continue until the entire header is received
-      }
+	       CRLF_len = strlen("\n\n");
+	    }
+	    offset += CRLF_len;
+	    byte_count = nRet - offset;
+	    bytes_received += byte_count;
+	    char *s_ptr = (char *)rxBuffer;
+	    memmove(s_ptr, s_ptr+offset, byte_count);
+       }
+       else
+       { // Part of the header was received
+	     continue; // Continue until the entire header is received
+       }
     }
     else {
       byte_count = nRet;

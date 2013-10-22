@@ -8,45 +8,61 @@
 
 #import "xcvbViewController.h"
 #import "SimpleThread.h"
+#import "HTTP_Tunnel.h"
 #include <iostream>
 using namespace std; // Use unqualified names for Standard C++ library
 
 @interface xcvbViewController ()
-
 @end
 
 @implementation xcvbViewController
 
-- (void)viewDidLoad
-{
+@synthesize webView = _webView;
+
+- (void)viewDidLoad{
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
-    SimpleThread t;
-
-    gxThread_t *thread = t.CreateThread();
-
-    // Wait until we realize the thread needs to be canceled
-    t.sSleep(5);
-    t.CancelThread(thread);
-
-    // Wait for the thread to complete, and release its resources
-    t.JoinThread(thread);
-
-    if(thread->GetThreadState() == gxTHREAD_STATE_CANCELED) {
-
-        cout << "The thread was canceled" << "\n" << flush;
-    }
-    else {
-        cout << "The thread was not canceled" << "\n" << flush;
-    }
-
-    delete thread; // Prevent memory leaks
+    _webView.delegate = self;
 }
-
-- (void)didReceiveMemoryWarning
-{
+// --------------------------------------------------------------------------
+- (BOOL)webView:(UIWebView *)webView
+shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType{
+    NSLog(@"shouldStartLoadWithRequest:URL: \n%@", request );
+    return TRUE;
+}
+// --------------------------------------------------------------------------
+- (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
+    NSLog(@"shouldStartLoadWithRequest:Error: \n%@", error);
+}
+// --------------------------------------------------------------------------
+- (void)webViewDidStartLoad:(UIWebView *)webView{
+    NSLog(@"webViewDidStartLoad");
+}
+// --------------------------------------------------------------------------
+- (void)webViewDidFinishLoad:(UIWebView *)webView;{
+    NSLog(@"webViewDidFinishLoad");
+}
+// --------------------------------------------------------------------------
+- (void)didReceiveMemoryWarning{
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+// --------------------------------------------------------------------------
+- (IBAction)stopTunnelbutton:(id)sender {
+    myTunnel.CloseThread(myTunnel_t);
+    myTunnel.JoinThread(myTunnel_t);
+}
+// --------------------------------------------------------------------------
+- (IBAction)startTunnelButton:(id)sender {
+    myTunnel_t = myTunnel.CreateThread();
+}
+// --------------------------------------------------------------------------
+- (IBAction)goButton:(id)sender {
+    NSURL *url = [NSURL URLWithString:@"http://127.0.0.1:8080?url=www.ru"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    [_webView setScalesPageToFit:YES];
+    [self.webView loadRequest:request];
+}
+
 
 @end
