@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Страница с приветствием и текущей датой и временем</title>
+  <script>
+    function showDateTime() {
+      var currentDate = new Date();
+      var date = currentDate.toLocaleDateString();
+      var time = currentDate.toLocaleTimeString();
+      document.getElementById('datetime').innerHTML = 'Привет мир! Текущая дата и время: ' + date + ' ' + time;
+    }
+  </script>
+</head>
+<body onload="showDateTime()">
+  <div id="datetime"></div>
+</body>
+</html>
